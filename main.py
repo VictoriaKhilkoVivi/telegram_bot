@@ -32,92 +32,144 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-GENDER, PHOTO, LOCATION, BIO = range(4)
+FIO, AGE, CITY, NUMBER, EMAIL, EDUCATION, ABILITY, EXPERIENCE, LINK, WORK, SALARY, SOURCE = range(12)
 
 
 def start(update: Update, context: CallbackContext) -> int:
     """Starts the conversation and asks the user about their gender."""
-    reply_keyboard = [['Boy', 'Girl', 'Other']]
 
     update.message.reply_text(
-        'Hi! My name is Professor Bot. I will hold a conversation with you. '
-        'Send /cancel to stop talking to me.\n\n'
-        'Are you a boy or a girl?',
-        reply_markup=ReplyKeyboardMarkup(
-            reply_keyboard, one_time_keyboard=True, input_field_placeholder='Boy or Girl?'
-        ),
+        'Здравствуйте! '
+        '\n'
+        'Как Вас зовут?',
     )
 
-    return GENDER
+    return FIO
 
 
-def gender(update: Update, context: CallbackContext) -> int:
-    """Stores the selected gender and asks for a photo."""
+def fio(update: Update, context: CallbackContext) -> int:
     user = update.message.from_user
-    logger.info("Gender of %s: %s", user.first_name, update.message.text)
+    logger.info("ФИО of %s: %s", user.first_name, update.message.text)
     update.message.reply_text(
-        'I see! Please send me a photo of yourself, '
-        'so I know what you look like, or send /skip if you don\'t want to.',
-        reply_markup=ReplyKeyboardRemove(),
+        'Ваш возраст? ',
     )
 
-    return PHOTO
+    return AGE
 
 
-def photo(update: Update, context: CallbackContext) -> int:
-    """Stores the photo and asks for a location."""
+def age(update: Update, context: CallbackContext) -> int:
     user = update.message.from_user
-    photo_file = update.message.photo[-1].get_file()
-    photo_file.download('user_photo.jpg')
-    logger.info("Photo of %s: %s", user.first_name, 'user_photo.jpg')
+    global points
+    if (int(update.message.text) <= 40):
+        points = 1
+    else:
+        points = 0
+    logger.info("Возраст of %s: %s", user.first_name, update.message.text)
     update.message.reply_text(
-        'Gorgeous! Now, send me your location please, or send /skip if you don\'t want to.'
+        'Ваше место жительства?',
     )
 
-    return LOCATION
+    return CITY
 
 
-def skip_photo(update: Update, context: CallbackContext) -> int:
-    """Skips the photo and asks for a location."""
+def city(update: Update, context: CallbackContext) -> int:
     user = update.message.from_user
-    logger.info("User %s did not send a photo.", user.first_name)
+    logger.info("Место жительства of %s: %s", user.first_name, update.message.text)
     update.message.reply_text(
-        'I bet you look great! Now, send me your location please, or send /skip.'
+        'Ваша номер телефона?'
     )
 
-    return LOCATION
+    return NUMBER
 
 
-def location(update: Update, context: CallbackContext) -> int:
-    """Stores the location and asks for some info about the user."""
+def number(update: Update, context: CallbackContext) -> int:
     user = update.message.from_user
-    user_location = update.message.location
-    logger.info(
-        "Location of %s: %f / %f", user.first_name, user_location.latitude, user_location.longitude
-    )
-    update.message.reply_text(
-        'Maybe I can visit you sometime! At last, tell me something about yourself.'
-    )
+    logger.info("Номер телефона of %s: %s", user.first_name, update.message.text)
+    update.message.reply_text('Ваш email?')
 
-    return BIO
+    return EMAIL
 
 
-def skip_location(update: Update, context: CallbackContext) -> int:
-    """Skips the location and asks for info about the user."""
+def email(update: Update, context: CallbackContext) -> int:
     user = update.message.from_user
-    logger.info("User %s did not send a location.", user.first_name)
-    update.message.reply_text(
-        'You seem a bit paranoid! At last, tell me something about yourself.'
-    )
+    logger.info("E-mail of %s: %s", user.first_name, update.message.text)
+    update.message.reply_text('Есть ли у вас образование в сфере дизайна?')
 
-    return BIO
+    return EDUCATION
 
 
-def bio(update: Update, context: CallbackContext) -> int:
-    """Stores the info about the user and ends the conversation."""
+def education(update: Update, context: CallbackContext) -> int:
     user = update.message.from_user
-    logger.info("Bio of %s: %s", user.first_name, update.message.text)
-    update.message.reply_text('Thank you! I hope we can talk again some day.')
+    global points
+    if (update.message.text == 'Да'):
+        points = points + 1
+    logger.info("Education of %s: %s", user.first_name, update.message.text)
+    update.message.reply_text('Умеете ли вы работать в Adobe Illustrator и Photoshop?')
+
+    return ABILITY
+
+
+def ability(update: Update, context: CallbackContext) -> int:
+    user = update.message.from_user
+    global points
+    if (update.message.text == 'Да'):
+        points = points + 1
+    logger.info("Способности of %s: %s", user.first_name, update.message.text)
+    update.message.reply_text('Ваш стаж работы графическим дизайнером (число лет)?')
+
+    return EXPERIENCE
+
+
+def experience(update: Update, context: CallbackContext) -> int:
+    user = update.message.from_user
+    global points
+    if (int(update.message.text) >= 1):
+        points = points + 1
+    logger.info("Стаж работы дизайнером of %s: %s", user.first_name, update.message.text)
+    update.message.reply_text('Пришлите, пожалуйста, ссылку на портфолио')
+
+    return LINK
+
+
+def link(update: Update, context: CallbackContext) -> int:
+    user = update.message.from_user
+    logger.info("Ссылка на портфолио of %s: %s", user.first_name, update.message.text)
+    update.message.reply_text('Готовы ли вы к работе на полную занятость в нашей компании, 5-8ч/день')
+
+    return WORK
+
+
+def work(update: Update, context: CallbackContext) -> int:
+    user = update.message.from_user
+    global points
+    if (update.message.text == 'Да'):
+        points = points + 1
+    logger.info("Занятость of %s: %s", user.first_name, update.message.text)
+    update.message.reply_text('На какой уровень дохода вы рассчитываете?')
+
+    return SALARY
+
+
+def salary(update: Update, context: CallbackContext) -> int:
+    user = update.message.from_user
+    global points
+    if (int(update.message.text) <= 70000):
+        points = points + 1
+    logger.info("Зарплата of %s: %s", user.first_name, update.message.text)
+    update.message.reply_text('Из какого источника вы узнали о вакансии?')
+
+    return SOURCE
+
+
+def source(update: Update, context: CallbackContext) -> int:
+    user = update.message.from_user
+    logger.info("Источник of %s: %s", user.first_name, update.message.text)
+    update.message.reply_text('Спасибо! Обрабатываем ответы.')
+    global points
+    if (points > 5):
+        update.message.reply_text('Поздравляем! Вы приглашены на работу.')
+    else:
+        update.message.reply_text('К сожалению, Вы нам не подходите. Желаем удачи в поисках работы!')
 
     return ConversationHandler.END
 
@@ -127,7 +179,7 @@ def cancel(update: Update, context: CallbackContext) -> int:
     user = update.message.from_user
     logger.info("User %s canceled the conversation.", user.first_name)
     update.message.reply_text(
-        'Bye! I hope we can talk again some day.', reply_markup=ReplyKeyboardRemove()
+        'Bye! I hope we can talk again some day.',
     )
 
     return ConversationHandler.END
@@ -137,7 +189,6 @@ def main() -> None:
     """Run the bot."""
     # Create the Updater and pass it your bot's token.
     updater = Updater("2077046165:AAGbMY6P-Km-gK8sSgPZExx6ng5051XmRa4")
-
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
 
@@ -145,13 +196,18 @@ def main() -> None:
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
         states={
-            GENDER: [MessageHandler(Filters.regex('^(Boy|Girl|Other)$'), gender)],
-            PHOTO: [MessageHandler(Filters.photo, photo), CommandHandler('skip', skip_photo)],
-            LOCATION: [
-                MessageHandler(Filters.location, location),
-                CommandHandler('skip', skip_location),
-            ],
-            BIO: [MessageHandler(Filters.text & ~Filters.command, bio)],
+            FIO: [MessageHandler(Filters.regex('\w+\s\w+(\s\w+)?') & ~Filters.command, fio)],
+            AGE: [MessageHandler(Filters.regex('\d+') & ~Filters.command, age)],
+            CITY: [MessageHandler(Filters.text & ~Filters.command, city)],
+            NUMBER: [MessageHandler(Filters.regex('^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$'), number)],
+            EMAIL: [MessageHandler(Filters.regex('.+@.+\..+'), email)],
+            EDUCATION: [MessageHandler(Filters.regex('^(Да|Нет)$'), education)],
+            ABILITY: [MessageHandler(Filters.regex('^(Да|Нет)$'), ability)],
+            EXPERIENCE: [MessageHandler(Filters.regex('\d+'), experience)],
+            LINK: [MessageHandler(Filters.text, link)],
+            WORK: [MessageHandler(Filters.regex('^(Да|Нет)$'), work)],
+            SALARY: [MessageHandler(Filters.regex('\d+'), salary)],
+            SOURCE: [MessageHandler(Filters.text, source)],
         },
         fallbacks=[CommandHandler('cancel', cancel)],
     )
